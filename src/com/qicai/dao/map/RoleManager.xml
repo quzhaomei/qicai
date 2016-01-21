@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.RoleManagerDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true" /> 
+	<resultMap type="com.qicai.dto.admin.RoleManagerDTO" id="roleDTO">
+		<id property="roleId" column="roleId" />
+		<result property="roleName" column="roleName" />
+		<result property="status" column="status" />
+		<result property="createDate" column="createDate" />
+		<result property="updateDate" column="updateDate" />
+		<association property="createUserDTO" javaType="com.qicai.dto.admin.AdminUserDTO" column="createUserId">
+			<id property="adminUserId" column="createUserId"/>
+			<result property="userName" column="userName"/>
+			<result property="phone" column="phone"/>
+			<result property="wechatId" column="wechatId"/>
+		</association>
+		<association property="updateUserDTO" javaType="com.qicai.dto.admin.AdminUserDTO" column="updateUserId">
+			<id property="adminUserId" column="updateUserId"/>
+			<result property="userName" column="userName"/>
+			<result property="phone" column="phone"/>
+			<result property="wechatId" column="wechatId"/>
+		</association>
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="role.roleId">
+		insert into role_manager(roleId,roleName,status,createDate,createUserId)
+		values
+		(#{role.roleId},
+		#{role.roleName},#{role.status},#{role.createDate},#{role.createUserId})
+	</insert>
+	<update id="update">
+		update role_manager set roleId=#{role.roleId}
+		<if test="role.roleName!=null">
+			,roleName=#{role.roleName}
+		</if>
+		<if test="role.status!=null">
+			,status=#{role.status}
+		</if>
+		where roleId=#{role.roleId};
+	</update>
+	<delete id="delete"></delete>
+	<select id="getListByParam" resultMap="roleDTO">
+		select roleId,roleName,status,createDate,createUserId from role_manager where 1=1
+		<if test="role.status!=null">
+			and status=#{role.status}
+		</if>
+	</select>
+	<select id="getByParam" resultMap="roleDTO">
+		select roleId,roleName,status,createDate,createUserId from role_manager where 1=1
+		<if test="role.status!=null">
+			and status=#{role.status}
+		</if>
+		<if test="role.roleId!=null">
+			and roleId=#{role.roleId}
+		</if>
+	</select>
+	<select id="getCountByParam" resultType="int"></select>
+</mapper>  

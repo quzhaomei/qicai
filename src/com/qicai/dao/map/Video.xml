@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.VideoDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  
+	<resultMap type="com.qicai.dto.VideoDTO" id="videoDTO">
+		<id property="videoId" column="videoId" />
+		<result property="path" column="path" />
+		<result property="type" column="type" />
+	</resultMap>
+	<insert id="save" useGeneratedKeys="true" keyProperty="video.videoId">
+		insert into video
+		(videoId,path,type)
+		values
+		(#{video.videoId},#{video.path},#{video.type})
+	</insert>
+	<update id="update">
+		update video set videoId=#{video.videoId}
+		<if test="video.path!=null">
+		,path=#{video.path}
+		</if>
+		<if test="video.type!=null">
+		,type=#{video.type}
+		</if>
+		where videoId=#{video.videoId}
+	</update>
+	<select id="getByParam" resultMap="videoDTO">
+		select videoId,path,type
+		from video where 1=1 
+		<if test="video.videoId!=null">
+		and videoId=#{video.videoId}
+		</if>
+	</select>
+</mapper>  

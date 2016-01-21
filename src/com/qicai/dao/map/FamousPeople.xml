@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.FamousPeopleDao">
+	 <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/> 
+	<resultMap type="com.qicai.dto.FamousPeopleDTO" id="peopleDTO">
+		<id property="peopleId" column="peopleId" />
+		<result property="name" column="name" />
+		<result property="introduce" column="introduce" />
+		<result property="imgPath" column="imgPath" />
+		<result property="job" column="job" />
+		<result property="createDate" column="createDate" />
+		<result property="status" column="status" />
+		
+		<result property="topDate" column="topDate" />
+		
+		
+		<result property="pinying" column="pinying" />
+		<result property="ename" column="ename" />
+		<result property="nationality" column="nationality" />
+		<result property="birthPlace" column="birthPlace" />
+		<result property="birthDay" column="birthDay" />
+		<result property="imgWidth" column="imgWidth" />
+		<result property="imgHeight" column="imgHeight" />
+	</resultMap>
+	<insert id="save" useGeneratedKeys="true" keyProperty="people.peopleId">
+		insert
+		into famous_people(peopleId,name,introduce,imgPath,job,createDate,status
+		,pinying,ename,nationality,birthPlace,birthDay,imgWidth,imgHeight)
+		values
+		(#{people.peopleId},#{people.name},#{people.introduce},#{people.imgPath},#{people.job},#{people.createDate},#{people.status}
+		,#{people.pinying},#{people.ename},#{people.nationality},#{people.birthPlace},#{people.birthDay}
+		,#{people.imgWidth},#{people.imgHeight}
+		)
+	</insert>
+	<update id="update">
+		update famous_people set peopleId=#{people.peopleId}
+		<if test="people.name!=null">
+			,name=#{people.name}
+		</if>
+		<if test="people.imgHeight!=null">
+			,imgHeight=#{people.imgHeight}
+		</if>
+		<if test="people.imgWidth!=null">
+			,imgWidth=#{people.imgWidth}
+		</if>
+		<if test="people.topDate!=null">
+			,topDate=#{people.topDate}
+		</if>
+		<if test="people.birthDay!=null">
+			,birthDay=#{people.birthDay}
+		</if>
+		<if test="people.birthPlace!=null">
+			,birthPlace=#{people.birthPlace}
+		</if>
+		<if test="people.nationality!=null">
+			,nationality=#{people.nationality}
+		</if>
+		<if test="people.ename!=null">
+			,ename=#{people.ename}
+		</if>
+		<if test="people.introduce!=null">
+			,introduce=#{people.introduce}
+		</if>
+		<if test="people.imgPath!=null">
+			,imgPath=#{people.imgPath}
+		</if>
+		<if test="people.status!=null">
+			,status=#{people.status}
+		</if>
+		<if test="people.job!=null">
+			,job=#{people.job}
+		</if>
+		where peopleId=#{people.peopleId};
+	</update>
+
+	<select id="getAllPeople" resultMap="peopleDTO">
+		select
+		peopleId,name,introduce,imgPath,job,createDate,status,pinying,ename,nationality,
+		birthPlace,birthDay,imgWidth,imgHeight,topDate from famous_people
+		order by topDate desc,pinying asc
+	</select>
+	<select id="getListByParam" resultMap="peopleDTO">
+		select peopleId,name,introduce,job,imgPath,createDate,status
+		,pinying,ename,nationality,birthPlace,birthDay,imgWidth,imgHeight,topDate from famous_people
+		where 1=1 and status!=0
+		<if test="people.status!=null">
+			and status=#{people.status}
+		</if>
+		order by topDate desc,pinying asc
+	</select>
+	<select id="getPeopleByParam" resultMap="peopleDTO">
+		select peopleId,name,introduce,job,imgPath,createDate,status 
+		,pinying,ename,nationality,birthPlace,birthDay,imgWidth,imgHeight
+		from famous_people
+		where 1=1
+		<if test="people.peopleId!=null">
+			and peopleId=#{people.peopleId}
+		</if>
+	</select>
+	<select id="getListByPage" resultMap="peopleDTO">
+		select peopleId,name,introduce,job,imgPath,createDate,status
+		,pinying,ename,nationality,birthPlace,birthDay,imgWidth,imgHeight from famous_people
+		where 1=1
+		<if test="page.param.status!=null">
+			and status=#{page.param.status}
+		</if>
+		<if test="page.param.pinying!=null">
+			and pinying like '${page.param.pinying}%'
+		</if>
+		<if test="page.param.name!=null"><!-- 按首字母检索 -->
+			and name like '%${page.param.name}%'
+		</if>
+		order by topDate desc,pinying asc
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize} 
+	</select>
+	<select id="getCountByParam" resultType="int">
+		select count(peopleId) from famous_people
+		where 1=1
+		<if test="people.status!=null">
+			and status=#{people.status}
+		</if>
+		<if test="people.name!=null">
+			and name like '%${people.name}%'
+		</if>
+		<if test="people.pinying!=null"><!-- 按首字母检索  -->
+			and pinying like '${people.pinying}%'
+		</if>
+	</select>
+	<select id="getCharArr" resultType="String">
+		SELECT DISTINCT SUBSTRING(a.pinying,1,1) charIndex  FROM famous_people a where a.status=1
+		order by charIndex
+	</select>
+</mapper>  

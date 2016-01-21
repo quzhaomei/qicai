@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.MenuManagerDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  
+	<resultMap type="com.qicai.dto.admin.MenuManagerDTO" id="menuDTO">
+		<id property="menuId" column="menuId" />
+		<result property="menuName" column="menuName" />
+		<result property="uri" column="uri" />
+		<result property="parentId" column="parentId" />
+		<result property="type" column="type" />
+		<result property="status" column="status" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="menu.menuId">
+		insert into menu_manager(menuId,menuName,uri,parentId,type,status,createDate,createUserId)
+		values
+		(#{menu.menuId},
+		#{menu.menuName},#{menu.uri},#{menu.parentId},#{menu.type},#{menu.status}
+		,#{menu.createDate},#{menu.createUserId})
+	</insert>
+	<update id="update">
+		update menu_manager set menuId=#{menu.menuId}
+		<if test="menu.menuName!=null">
+			,menuName=#{menu.menuName}
+		</if>
+		<if test="menu.uri!=null">
+			,uri=#{menu.uri}
+		</if>
+		<if test="menu.type!=null">
+			,type=#{menu.type}
+		</if>
+		<if test="menu.status!=null">
+			,status=#{menu.status}
+		</if>
+		where menuId=#{menu.menuId};
+	</update>
+	<delete id="delete">
+		delete from menu_manager where menuId=#{menu.menuId}
+	</delete>
+	<select id="getNavMenu" resultMap="menuDTO">
+		select menuId,menuName,uri,parentId,type,status from menu_manager where  
+		type = 0 or type=1
+	</select>
+	<select id="getListByParam" resultMap="menuDTO">
+		select menuId,menuName,uri,parentId,type,status from menu_manager where 1=1
+		<if test="menu.status!=null">
+			and status=#{menu.status}
+		</if>
+		<if test="menu.type!=null">
+			and type=#{menu.type}
+		</if>
+		<if test="menu.parentId!=null">
+			and parentId=#{menu.parentId}
+		</if>
+		order by menuId
+	</select>
+	<select id="getByParam" resultMap="menuDTO" >
+		select menuId,menuName,uri,parentId,type,status from menu_manager where 1=1
+		<if test="menu.status!=null">
+			and status=#{menu.status}
+		</if>
+		<if test="menu.type!=null">
+			and type=#{menu.type}
+		</if>
+		<if test="menu.menuId!=null">
+			and menuId=#{menu.menuId}
+		</if>
+	</select>
+	<select id="getCountByParam" resultType="int"></select>
+</mapper>  

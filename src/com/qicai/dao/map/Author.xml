@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.AuthorDao">
+<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>   --> 
+	<resultMap type="com.qicai.dto.AuthorDTO" id="authorDTO">
+		<id property="authorId" column="authorId" />
+		<result property="userId" column="userId" />
+		
+		<result property="penName" column="penName" />
+		<result property="photoPath" column="photoPath" />
+		<result property="sinaPath" column="sinaPath" />
+		<result property="txPath" column="txPath" />
+		<result property="introduce" column="introduce" />
+		
+		<result property="createDate" column="createDate" />
+		<result property="status" column="userStatus" />
+	</resultMap>
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="author.authorId">
+		insert into author
+		(authorId,userId,penName,photoPath,sinaPath,txPath,introduce,createDate,status)
+		values
+		(#{author.authorId},#{author.userId},#{author.penName},#{author.photoPath},
+		#{author.sinaPath},#{author.txPath},#{author.introduce},#{author.createDate},
+		#{author.status})
+	</insert>
+	<update id="update">
+		update author set authorId=#{author.authorId}
+		<if test="author.penName!=null">
+		,penName=#{author.penName}
+		</if>
+		<if test="author.photoPath!=null">
+		,photoPath=#{author.photoPath}
+		</if>
+		<if test="author.sinaPath!=null">
+		,sinaPath=#{author.sinaPath}
+		</if>
+		<if test="author.txPath!=null">
+		,txPath=#{author.txPath}
+		</if>
+		<if test="author.introduce!=null">
+		,introduce=#{author.introduce}
+		</if>
+		<if test="author.status!=null">
+		,status=#{author.status}
+		</if>
+		where authorId=#{author.authorId}
+	</update>
+	<select id="getListByPage" resultMap="authorDTO">
+		select authorId,userId,penName,photoPath,sinaPath,
+		txPath,introduce,createDate,status
+		from author where 1=1 
+		<if test="page.param.status!=null">
+			and status=#{page.param.status}
+		</if>
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+	
+	<select id="getAdminAuthor" resultMap="authorDTO">
+		select a.authorId,a.userId,a.penName,a.photoPath,a.sinaPath,
+		a.txPath,a.introduce,a.createDate,a.status
+		from author a 
+		left join admin_user au on au.adminuserId=a.userId
+		where au.type=1
+	</select>
+	
+	<select id="getHasArticalAuthorByPage" resultMap="authorDTO" useCache="true">
+		select au.authorId
+		from author au
+		left join user_to_role utr on utr.userId=au.userId
+		left join artical ar on ar.authorId=au.authorId
+		where utr.roleId=2
+		and ar.status=1
+		<if test="page.param.status!=null">
+			and au.status=#{page.param.status}
+		</if>
+		group by au.authorId having count(ar.articalId)>0
+		order by max(ar.topDate) desc,max(ar.createDate) desc
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+	<select id="getHasArticalAuthorCount" resultType="int">
+	select count(total.authorId) from(
+		select au.authorId
+		from author au
+		left join artical ar on ar.authorId=au.authorId
+		left join user_to_role utr on utr.userId=au.userId
+		where utr.roleId=2
+		and ar.status=1
+		<if test="author.status!=null">
+			and au.status=#{author.status}
+		</if>
+		group by au.authorId
+		having count(ar.articalId)>0
+		) total
+		
+	</select>
+		
+	
+	<select id="getByParam" resultMap="authorDTO">
+		select authorId,userId,penName,photoPath,sinaPath,
+		txPath,introduce,createDate,status
+		from author where 1=1 
+		<if test="author.status!=null">
+			and status=#{author.status}
+		</if>
+		<if test="author.authorId!=null">
+			and authorId=#{author.authorId}
+		</if>
+		<if test="author.userId!=null">
+			and userId=#{author.userId}
+		</if>
+	</select>
+	<select id="getCountByParam" resultType="int">
+		select count(1)	from author where 1=1 
+		<if test="page.param.status!=null">
+			and status=#{page.param.status}
+		</if>
+		</select>
+</mapper>  

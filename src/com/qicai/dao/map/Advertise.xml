@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.AdvertiseDao">
+<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  -->
+	<resultMap type="com.qicai.dto.AdvertiseDTO" id="adDTO">
+		<id property="advertiseId" column="advertiseId" />
+		<result property="code" column="code" />
+		<result property="pageUrl" column="pageUrl" />
+		<result property="href" column="href" />
+		<result property="imgPath" column="imgPath" />
+		<result property="width" column="width" />
+		<result property="height" column="height" />
+		<result property="descript" column="descript" />
+		<result property="createDate" column="createDate" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="advertise.advertiseId">
+		insert into advertise(advertiseId,code,pageUrl,href,imgPath,width,height,descript,createDate)
+		values
+		(#{advertise.advertiseId},
+		#{advertise.code},#{advertise.pageUrl},#{advertise.href},#{advertise.imgPath}
+		,#{advertise.width},#{advertise.height}
+		,#{advertise.descript},#{advertise.createDate})
+	</insert>
+	<update id="update">
+		update advertise set advertiseId=#{advertise.advertiseId}
+		<if test="advertise.imgPath!=null">
+			,imgPath=#{advertise.imgPath}
+		</if>
+		<if test="advertise.href!=null">
+			,href=#{advertise.href}
+		</if>
+		where advertiseId=#{advertise.advertiseId};
+	</update>
+	<select id="findAll" resultMap="adDTO">
+	select advertiseId,code,href,pageUrl,imgPath,width,height,descript,createDate from
+	advertise order by createDate 
+	</select>
+	<select id="findByCode" resultMap="adDTO">
+	select advertiseId,code,href,pageUrl,imgPath,width,height,descript,createDate from
+	advertise where code=#{code}
+	</select>
+	<select id="findById" resultMap="adDTO">
+	select advertiseId,code,href,pageUrl,imgPath,width,height,descript,createDate from
+	advertise where advertiseId=#{id}
+	</select>
+</mapper>  

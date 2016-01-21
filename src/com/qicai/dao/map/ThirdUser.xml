@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.ThirdUserDao">
+<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true" /> -->
+	<resultMap type="com.qicai.dto.ThirdUserDTO" id="thirdUserDTO">
+		<id property="id" column="id" />
+		<result property="openId" column="openId" />
+		<result property="userId" column="userId" />
+		<result property="name" column="name" />
+		<result property="photo" column="photo" />
+		<result property="createDate" column="createDate" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="user.id">
+		insert into third_user(openId,userId,name,photo,createDate)
+		values(#{user.openId},#{user.userId},#{user.name},
+		#{user.photo},#{user.createDate})
+	</insert>
+	<update id="update">
+	</update>
+	<delete id="delete">
+	</delete>
+	<select id="getListByParam" resultMap="thirdUserDTO">
+	</select>
+	<select id="getListByPage" resultMap="thirdUserDTO">
+	</select>
+	<select id="getByParam" resultMap="thirdUserDTO">
+		select openId,userId,name,photo,createDate from 
+		third_user where 1=1
+		<if test="user.openId!=null">
+			and openId=#{user.openId}
+		</if>
+	</select>
+</mapper>  

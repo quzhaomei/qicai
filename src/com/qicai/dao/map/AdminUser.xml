@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.AdminUserDao">
+<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  -->
+	<resultMap type="com.qicai.dto.admin.AdminUserDTO" id="userDTO">
+		<id property="adminUserId" column="adminUserId" />
+		<result property="loginname" column="loginname" />
+		<result property="password" column="password" />
+		
+		<result property="nickname" column="nickname" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="type" column="type" />
+
+		<result property="orinal" column="orinal" />
+		<result property="position" column="position" />
+		
+		<result property="description" column="description" />
+		
+		<result property="createDate" column="createDate" />
+		<result property="updateDate" column="updateDate" />
+		<result property="status" column="userStatus" />
+		<association property="createUserDTO" column="createUserId" javaType="com.qicai.dto.admin.AdminUserDTO">
+			<id property="adminUserId" column="createUserId"/>
+			<result property="nickname" column="createNickname"/>
+		</association>
+		<association property="updateUserDTO" column="updateUserId" javaType="com.qicai.dto.admin.AdminUserDTO">
+			<id property="adminUserId" column="updateUserId"/>
+			<result property="nickname" column="updateNickname"/>
+		</association>
+		<collection property="roles" column="roleId" ofType="com.qicai.dto.admin.RoleManagerDTO" >
+			<id property="roleId" column="roleId" />
+			<result property="roleName" column="roleName" />
+			<result property="status" column="status" />
+		</collection>
+	</resultMap>
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="user.adminUserId">
+		insert into admin_user
+		(adminUserId,loginname,type,orinal,position,password,nickname,phone,email,description,createDate,createUserId,status)
+		values
+		(#{user.adminUserId},#{user.loginname},#{user.type},#{user.orinal},#{user.position},#{user.password},#{user.nickname},
+		#{user.phone},#{user.email},#{user.description},#{user.createDate},
+		#{user.createUserId},#{user.status})
+	</insert>
+	<update id="update">
+		update admin_user set adminUserId=#{user.adminUserId}
+		<if test="user.loginname!=null">
+		,loginname=#{user.loginname}
+		</if>
+		<if test="user.password!=null">
+		,password=#{user.password}
+		</if>
+		<if test="user.nickname!=null">
+		,nickname=#{user.nickname}
+		</if>
+		<if test="user.phone!=null">
+		,phone=#{user.phone}
+		</if>
+		<if test="user.email!=null">
+		,email=#{user.email}
+		</if>
+		<if test="user.type!=null">
+		,type=#{user.type}
+		</if>
+		<if test="user.description!=null">
+		,description=#{user.description}
+		</if>
+		<if test="user.updateUserId!=null">
+		,updateUserId=#{user.updateUserId}
+		</if>
+		<if test="user.updateDate!=null">
+		,updateDate=#{user.updateDate}
+		</if>
+		<if test="user.status!=null">
+		,status=#{user.status}
+		</if>
+		where adminUserId=#{user.adminUserId}
+	</update>
+	<delete id="delete"></delete>
+	<select id="getListByPage" resultMap="userDTO"><!-- 查询后台用户 type==0 -->
+		select u.adminUserId,u.loginname,u.nickname,u.type,u.phone,
+		u.createDate,u.updateDate,
+		u.email,u.description,u.status userStatus,
+		r.roleId,r.roleName,r.status
+		,u.createUserId,cr.nickName createNickname,
+		u.updateUserId,up.nickName updateNickname
+		  from admin_user u 
+			left join user_to_role ur on ur.userId=u.adminUserId
+			left join role_manager r on r.roleId=ur.roleId
+			left join admin_user cr on cr.adminUserId=u.createUserId
+			left join admin_user up on up.adminUserId=u.updateUserId
+			where u.adminUserId in(
+				select temp.adminUserId from(
+				select adminUserId from admin_user u
+					where u.status!=0  
+					<if test="page.param.type!=null">
+					and u.type=#{page.param.type}
+					</if>
+				limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+				)temp
+			)
+			
+			order by u.adminUserId
+	</select>
+	<select id="getByParam" resultMap="userDTO">
+		select u.adminUserId,u.loginname,u.nickname,u.password,u.type,u.phone,u.email,u.description,u.status userStatus,
+		r.roleId,r.roleName,r.status  from admin_user u 
+			left join user_to_role ur on ur.userId=u.adminUserId
+			left join role_manager r on r.roleId=ur.roleId
+			where  u.status!=0
+			<if test="user.adminUserId!=null">
+				and u.adminUserId=#{user.adminUserId}
+			</if>
+			<if test="user.loginname!=null">
+				and binary u.loginname=#{user.loginname}
+			</if>
+			<if test="user.password!=null">
+				and  u.password=#{user.password}
+			</if>
+			<if test="user.type!=null">
+				and  u.type=#{user.type}
+			</if>
+	</select>
+	<select id="mengHuLogin" resultMap="userDTO">
+		select u.adminUserId,u.loginname,u.nickname,u.password,u.type,u.phone,u.email,u.description,u.status userStatus,
+		r.roleId,r.roleName,r.status  from admin_user u 
+			left join user_to_role ur on ur.userId=u.adminUserId
+			left join role_manager r on r.roleId=ur.roleId
+			where  u.status!=0 and
+				( u.loginname=#{user.loginname}
+			<if test="user.orinal==0"><!-- 个人可以用邮箱登陆 -->
+				or u.email=#{user.loginname}
+			</if>
+				)
+			<if test="user.orinal!=null"><!-- 个人可以用邮箱登陆 -->
+				and u.orinal=#{user.orinal}
+			</if>
+	</select>
+	
+	<select id="getCountByParam" resultType="int">
+		select count(*) from admin_user u 
+			where u.status!=0  
+			<if test="user.type!=null">
+			and u.type=#{user.type}
+			</if>
+	</select>
+	<select id="checkUserCount" resultType="int">
+		select count(u.adminUserId) from admin_user u 
+			where 1=1
+			<if test="user.adminUserId!=null">
+				and adminUserId=#{user.adminUserId}
+			</if>
+			<if test="user.loginname!=null">
+				and loginname=#{user.loginname}
+			</if>
+			<if test="user.phone!=null">
+				and phone=#{user.phone}
+			</if>
+			<if test="user.email!=null">
+				and email=#{user.email}
+			</if>
+			<if test="user.type!=null">
+				and type=#{user.type}
+			</if>
+	</select>
+</mapper>  

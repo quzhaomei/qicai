@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.ArticalToTagDao">
+<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  -->
+	<resultMap type="com.qicai.dto.ArticalToTagDTO" id="tempDTO">
+		<id property="id" column="id" />
+		<result property="articalTag" column="articalTag" />
+		<result property="tagId" column="tagId" />
+	</resultMap>
+	<delete id="batchEmpty">
+		delete from artical_to_tag where articalId=#{bean.articalId}
+	</delete>
+	<insert id="batchSave">
+		<selectKey keyProperty="id" order="AFTER"  resultType="java.lang.Integer">  
+        SELECT LAST_INSERT_ID()  
+ 		 </selectKey> 
+		  insert into artical_to_tag (articalId,tagId)   
+	    values  
+	    <foreach collection="tagIds"  item="tagId" index="index" separator="," >  
+	        (#{bean.articalId},#{tagId})  
+	    </foreach>  
+	</insert>
+	<insert id="save"></insert>
+	<update id="update"></update>
+	<delete id="delete"></delete>
+	<select id="getListByParam"></select>
+	<select id="getByParam"></select>
+	<select id="getCountByParam" resultType="int"></select>
+</mapper>  

@@ -1,0 +1,19 @@
+.modal-body{max-height: 580px;}
+.zcarmsg{font-size:12px;}
+.zcarmsg td{vertical-align:middle;text-align:center;}
+.zcarmsg th{text-align:center;}
+.zcarmsg .index{font-size:15px;color:#444;}
+.zcarmsg .author{font-weight:bold;letter-spacing: 2px;}
+.zcarmsg .title{font-size:15px;color:#000;font-weight:bold;}
+.zcarmsg .content{text-indent: 2em;letter-spacing: -1px;text-align: left;}
+.zcarmsg .time{text-align:right;color:#002DBA;font-size:12px;font-weight:bold;}
+.zcarmsg .img div{ height:100px;overflow: hidden;}
+
+.control-group label.control-label{width:80px;}
+.form-horizontal .controls{margin-left:100px;}
+.right-content{border:2px solid #eee;}
+.right-content .reviewImg{position:relative;margin:5px 5px 10px 5px;border:1px solid #888;height:200px;overflow:hidden;text-align:center;}
+.reviewImg label{cursor: pointer;font-size:15px;font-weight:bold;margin-top:80px;position:absolute;left:40%;}
+.right-content .reviewImg img{width:100%;vertical-align:middle;}
+.form-horizontal .form-actions{padding-left:0px;text-align:center;}
+

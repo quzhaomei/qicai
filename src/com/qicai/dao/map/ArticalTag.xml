@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.ArticalTagDao">
+	 <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/> 
+	<resultMap type="com.qicai.dto.ArticalTagDTO" id="tagDTO">
+		<id property="tagId" column="tagId" />
+		<result property="tagName" column="tagName" />
+		<result property="createDate" column="createDate" />
+		<result property="status" column="status" />
+		
+		<result property="pinying" column="pinying" />
+		<result property="href" column="href" />
+		<result property="imgPath" column="imgPath" />
+		<result property="imgWidth" column="imgWidth" />
+		<result property="imgHeight" column="imgHeight" />
+		<result property="introduce" column="introduce" />
+		<result property="topDate" column="topDate" />
+		<result property="type" column="type" />
+		
+	</resultMap>
+	<insert id="save" useGeneratedKeys="true" keyProperty="tag.tagId">
+		insert
+		into artical_tag(tagId,tagName,createDate,status,pinying,href,imgPath,imgWidth,imgHeight,
+		introduce,topDate,type)
+		values
+		(#{tag.tagId},#{tag.tagName},#{tag.createDate},#{tag.status},#{tag.pinying}
+		,#{tag.href},#{tag.imgPath},#{tag.imgWidth},#{tag.imgHeight},
+		#{tag.introduce},#{tag.topDate},#{tag.type})
+	</insert>
+	<update id="update">
+		update artical_tag set tagId=#{tag.tagId}
+		<if test="tag.tagName!=null">
+			,tagName=#{tag.tagName}
+		</if>
+		<if test="tag.status!=null">
+			,status=#{tag.status}
+		</if>
+		<if test="tag.pinying!=null">
+			,pinying=#{tag.pinying}
+		</if>
+		<if test="tag.href!=null">
+			,href=#{tag.href}
+		</if>
+		<if test="tag.imgPath!=null">
+			,imgPath=#{tag.imgPath}
+		</if>
+		<if test="tag.imgWidth!=null">
+			,imgWidth=#{tag.imgWidth}
+		</if>
+		<if test="tag.imgHeight!=null">
+			,imgHeight=#{tag.imgHeight}
+		</if>
+		<if test="tag.introduce!=null">
+			,introduce=#{tag.introduce}
+		</if>
+		<if test="tag.topDate!=null">
+			,topDate=#{tag.topDate}
+		</if>
+		<if test="tag.type!=null">
+			,type=#{tag.type}
+		</if>
+		where tagId=#{tag.tagId};
+	</update>
+
+	<select id="getAllTag" resultMap="tagDTO">
+		select
+		tagId,tagName,createDate,status,pinying,href,imgPath,imgWidth,imgHeight,
+		introduce,topDate,type from artical_tag
+		order by topDate desc,createDate 
+	</select>
+	<select id="getListByParam" resultMap="tagDTO">
+		select
+		tagId,tagName,createDate,status,pinying,href,imgPath,imgWidth,imgHeight,
+		introduce,topDate,type from artical_tag
+		where 1=1
+		<if test="tag.status!=null">
+			and status=#{tag.status}
+		</if>
+		<if test="tag.type!=null">
+			and type=#{tag.type}
+		</if>
+		order by topDate desc,createDate desc
+	</select>
+	<select id="getCountByParam" resultType="int">
+		select
+		count(*) from artical_tag
+		where 1=1
+		<if test="param.status!=null">
+			and status=#{param.status}
+		</if>
+		<if test="param.type!=null">
+			and type=#{param.type}
+		</if>
+		<if test="param.pinying!=null">
+			and pinying like '${param.pinying}%'
+		</if>
+	</select>
+	<select id="getListByPage" resultMap="tagDTO">
+		select
+		tagId,tagName,createDate,status,pinying,href,imgPath,imgWidth,imgHeight,
+		introduce,topDate,type from artical_tag
+		where 1=1
+		<if test="page.param.status!=null">
+			and status=#{page.param.status}
+		</if>
+		<if test="page.param.type!=null">
+			and type=#{page.param.type}
+		</if>
+		
+		<if test="page.param.pinying!=null">
+		and(
+			pinying like '${page.param.pinying}%'
+			<if test="page.param.tagName!=null">
+				or tagName like '%${page.param.tagName}%'
+			</if>
+			)
+		</if>
+		
+		order by topDate desc,createDate desc
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+	
+	<select id="getTagByParam" resultMap="tagDTO">
+		select
+		tagId,tagName,createDate,status,pinying,href,imgPath,imgWidth,imgHeight,
+		introduce,topDate,type from artical_tag
+		where 1=1
+		<if test="tag.tagId!=null">
+			and tagId=#{tag.tagId}
+		</if>
+		order by topDate desc,createDate 
+	</select>
+	<select id="getBrandCharArr" resultType="String">
+		SELECT DISTINCT SUBSTRING(a.pinying,1,1) charIndex  FROM artical_tag a where a.status=1
+		and  a.type=1
+		order by charIndex
+	</select>
+</mapper>  

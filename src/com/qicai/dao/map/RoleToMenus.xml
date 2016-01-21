@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.RoleToMenusDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/> 
+	<resultMap type="com.qicai.dto.admin.RoleToMenusDTO" id="roleToMenuDTO">
+		<id property="id" column="id" />
+		<result property="roleId" column="roleId" />
+		<result property="menuId" column="menuId"/>
+	</resultMap>
+	<resultMap type="com.qicai.dto.admin.MenuManagerDTO" id="menuDTO">
+		<id property="menuId" column="menuId" />
+		<result property="type" column="type" />
+		<result property="parentId" column="parentId" />
+		<result property="menuName" column="menuName" />
+		<result property="uri" column="uri" />
+		<result property="tempId" column="tempId"/>
+	</resultMap>
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="userToRole.id">
+		insert into role_to_menus(id,roleId,menuId)
+		values
+		(#{roleToMenus.id},#{roleToMenus.roleId},#{roleToMenus.menuId})
+	</insert>
+	
+	<insert id="saveBatch">
+		<selectKey keyProperty="id" order="AFTER"  resultType="java.lang.Integer">  
+        SELECT LAST_INSERT_ID()  
+ 		 </selectKey> 
+		  insert into role_to_menus (roleId,menuId)   
+	    values  
+	    <foreach collection="menuIds"  item="menuId" index="index" separator="," >  
+	        (#{roleId},#{menuId})  
+	    </foreach>  
+	</insert>
+	
+	<delete id="delBatch">
+             delete from role_to_menus where 
+                  roleId=#{roleId} and id in
+		 <foreach collection="tempIds" item="tempId" index="index" open="(" close=")" separator=",">
+                #{tempId}  
+         </foreach>
+	</delete>
+	
+	<update id="update"></update>
+	<delete id="delete">
+	</delete>
+	
+	<select id="getMenuListByParam" resultMap="menuDTO">
+		select m.menuId,m.type,m.parentId,m.menuName,m.uri,rm.roleId,rt.id tempId from menu_manager m 
+			left join role_to_menus rt on rt.menuId=m.menuId 
+			<if test="roleToMenus.roleId!=null">
+				and rt.roleId=#{roleToMenus.roleId}
+			</if>
+			left join role_manager rm on rm.roleId=rt.roleId
+			order by m.menuId
+	</select>
+	<select id="getMenuListByRole" resultMap="menuDTO">
+		select m.menuId,
+		m.type,
+		m.parentId,
+		m.menuName,
+		m.uri from 
+		role_to_menus rm 
+		left join menu_manager m on m.menuId=rm.menuId
+		where rm.roleId=#{roleToMenus.roleId} 
+	</select>
+	<select id="getByParam" resultMap="roleToMenuDTO">
+		select id,roleId,menuId from role_to_menus where 1=1
+		<if test="roleToMenus.id!=null">
+			and id=#{roleToMenus.id}
+		</if>
+		<if test="roleToMenus.roleId!=null">
+			and roleId=#{roleToMenus.roleId}
+		</if>
+		<if test="roleToMenus.menuId!=null">
+			and menuId=#{roleToMenus.menuId}
+		</if>
+	</select>
+	<select id="getCountByParam" resultType="int"></select>
+</mapper>  

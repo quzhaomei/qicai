@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.TopManagerDao">
+	<!-- <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/> -->
+	<resultMap type="com.qicai.dto.TopManagerDTO" id="topDTO">
+		<id property="topId" column="topId" />
+		<result property="name" column="name" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="top.topId">
+		insert
+		into top_manager(topId,name,status)
+		values
+		(#{top.topId},
+		#{top.name},#{top.status}
+		)
+	</insert>
+	<update id="update">
+		update top_manager set topId=#{top.topId}
+		<if test="top.name!=null">
+			,name=#{top.name}
+		</if>
+		<if test="top.status!=null">
+			,status=#{top.status}
+		</if>
+		where topId=#{top.topId};
+	</update>
+
+	<select id="findByParam" resultMap="topDTO">
+		select
+		topId,name,status from top_manager where 1=1
+		<if test="top.topId!=null">
+		and topId=#{top.topId}
+		</if>
+		<if test="top.status!=null">
+		and status=#{top.status}
+		</if>
+	</select>
+	<select id="getAllTopManager" resultMap="topDTO">
+		select
+		topId,name,status from top_manager where status!=2
+	</select>
+	<insert id="addArtical">
+	insert into top_to_artical(topId,articalId,topDate)values(#{topToArtical.topId},
+	#{topToArtical.articalId},#{topToArtical.topDate})
+	</insert>
+	<update id="articalToTop">
+	update top_to_artical set topDate=#{topToArtical.topDate}
+	where topId=#{topToArtical.topId} and 
+	articalId=#{topToArtical.articalId}
+	</update>
+	<update id="articalTopRemove">
+	delete from top_to_artical
+	where topId=#{topToArtical.topId} and 
+	articalId=#{topToArtical.articalId}
+	</update>
+</mapper>  

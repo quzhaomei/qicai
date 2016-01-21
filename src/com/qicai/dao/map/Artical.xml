@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.ArticalDao">
+	<cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true" />
+	<resultMap type="com.qicai.dto.MainPageArticalDTO" id="mainDTO">
+		<id property="topId" column="topId" />
+		<id property="name" column="name" />
+		<association property="artical" javaType="com.qicai.dto.ArticalDTO">
+			<id property="articalId" column="articalId" />
+			<result property="title" column="title" />
+			<result property="quote" column="quote" />
+			<result property="scanImgPath" column="scanImgPath" />
+			<result property="scanImgHeight" column="scanImgHeight" />
+			<result property="scanImgWidth" column="scanImgWidth" />
+		</association>
+	</resultMap>
+	<resultMap type="com.qicai.dto.ArticalDTO" id="articalDTO">
+		<id property="articalId" column="articalId" />
+		<result property="title" column="title" />
+		<result property="quote" column="quote" />
+		<result property="scanImgPath" column="scanImgPath" />
+
+		<result property="content" column="content" />
+		<result property="type" column="type" />
+		<result property="rightNum" column="rightNum" />
+		<result property="wrongNum" column="wrongNum" />
+		<result property="seeNum" column="seeNum" />
+		<result property="commitNum" column="commitNum" />
+		<result property="createDate" column="createDate" />
+		<result property="status" column="status" />
+		<result property="referId" column="referId" />
+		<result property="sourcePath" column="sourcePath" />
+		<result property="startDate" column="startDate" />
+		<result property="endDate" column="endDate" />
+		<result property="topDate" column="topDate" />
+
+		<result property="scanImgHeight" column="scanImgHeight" />
+		<result property="scanImgWidth" column="scanImgWidth" />
+
+		<result property="topDate" column="topDate" />
+
+		<association property="resource" column="resourceId"
+			javaType="com.qicai.dto.ArticalResourceDTO">
+			<id property="resourceId" column="resourceId" />
+			<result property="name" column="name" />
+			<result property="url" column="url" />
+		</association>
+		<association property="author" column="authorId"
+			javaType="com.qicai.dto.AuthorDTO">
+			<id property="authorId" column="authorId" />
+			<result property="photoPath" column="photoPath" />
+			<result property="penName" column="penName" />
+		</association>
+
+		<association property="video" column="videoId"
+			javaType="com.qicai.dto.VideoDTO">
+			<id property="videoId" column="videoId" />
+			<result property="path" column="path" />
+			<result property="type" column="videoType" />
+		</association>
+
+		<collection property="tagList" column="tagId"
+			ofType="com.qicai.dto.ArticalTagDTO">
+			<id property="tagId" column="tagId" />
+			<result property="tagName" column="tagName" />
+		</collection>
+	</resultMap>
+	<insert id="save" useGeneratedKeys="true" keyProperty="artical.articalId">
+		insert
+		into
+		artical(articalId,authorId,referId,sourcePath,startDate,endDate,title,quote,
+		scanImgPath,scanImgHeight,scanImgWidth,resourceId,content,type,rightNum,
+		wrongNum,seeNum,commitNum,createDate,status)
+		values(#{artical.articalId},#{artical.authorId},#{artical.referId},#{artical.sourcePath},#{artical.startDate},#{artical.endDate},
+		#{artical.title},#{artical.quote},#{artical.scanImgPath},#{artical.scanImgHeight},#{artical.scanImgWidth}
+		,#{artical.resourceId},#{artical.content},#{artical.type},#{artical.rightNum},
+		#{artical.wrongNum},#{artical.seeNum},#{artical.commitNum},#{artical.createDate},
+		#{artical.status})
+	</insert>
+	<update id="update">
+		update artical set articalId=#{artical.articalId}
+		<if test="artical.title!=null">
+			,title=#{artical.title}
+		</if>
+		<if test="artical.quote!=null">
+			,quote=#{artical.quote}
+		</if>
+		<if test="artical.scanImgPath!=null">
+			,scanImgPath=#{artical.scanImgPath}
+		</if>
+		<if test="artical.scanImgWidth!=null">
+			,scanImgWidth=#{artical.scanImgWidth}
+		</if>
+		<if test="artical.scanImgHeight!=null">
+			,scanImgHeight=#{artical.scanImgHeight}
+		</if>
+		<if test="artical.resourceId!=null">
+			,resourceId=#{artical.resourceId}
+		</if>
+		<if test="artical.authorId!=null">
+			,authorId=#{artical.authorId}
+		</if>
+		<if test="artical.content!=null">
+			,content=#{artical.content}
+		</if>
+		<if test="artical.status!=null">
+			,status=#{artical.status}
+		</if>
+		<if test="artical.referId!=null">
+			,referId=#{artical.referId}
+		</if>
+		<if test="artical.sourcePath!=null">
+			,sourcePath=#{artical.sourcePath}
+		</if>
+		<if test="artical.startDate!=null">
+			,startDate=#{artical.startDate}
+		</if>
+		<if test="artical.endDate!=null">
+			,endDate=#{artical.endDate}
+		</if>
+		<if test="artical.topDate==0">
+			,topDate=null
+		</if>
+		<if test="artical.topDate==1">
+			,topDate=now()
+		</if>
+		<if test="artical.seeNum!=null">
+			,seeNum=#{artical.seeNum}
+		</if>
+		<if test="artical.rightNum!=null">
+			,rightNum=#{artical.rightNum}
+		</if>
+		<if test="artical.wrongNum!=null">
+			,wrongNum=#{artical.wrongNum}
+		</if>
+		where articalId=#{artical.articalId}
+	</update>
+	
+	<select id="getListByPageAndAuthor" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.resourceId,ar.name,ar.url,a.status,a.type,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.topDate,
+		au.authorId,au.penName from artical a
+		left join author au on
+		au.authorId=a.authorId
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		where a.status!=0 <!-- 未删除的 -->
+		<if test="page.param.status!=null">
+			and a.status=#{page.param.status}
+		</if>
+		<if test="page.param.authorId!=null">
+			and a.authorId=#{page.param.authorId}
+		</if>
+		<!-- 作者角色 -->
+		and a.authorId in(
+			select temp.authorId from(
+				select distinct a.authorId 
+				from author a 
+				left join user_to_role utr on utr.userId=a.userId
+				where utr.roleId=2
+			) temp
+		)
+		order by a.topDate desc,a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+	
+	<select id="getCountByParamAndAuthor" resultType="int">
+		select count(*)
+		from artical a
+		left join author au on
+		au.authorId=a.authorId
+		where a.status!=0 <!-- 未删除的 -->
+		<if test="artical.status!=null">
+			and a.status=#{artical.status}
+		</if>
+		<if test="artical.authorId!=null">
+			and a.authorId=#{artical.authorId}
+		</if>
+		<!-- 作者角色 -->
+		and a.authorId in(
+			select temp.authorId from(
+				select distinct a.authorId 
+				from author a 
+				left join user_to_role utr on utr.userId=a.userId
+				where utr.roleId=2
+			) temp
+		)
+	</select>
+	
+	
+	
+	<select id="getListByPage" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.resourceId,ar.name,ar.url,a.status,a.type,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.topDate,
+		au.authorId,au.penName from artical a
+		left join author au on
+		au.authorId=a.authorId
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		where a.status!=0 <!-- 未删除的 -->
+		<if test="page.param.type!=null">
+			and a.type=#{page.param.type}
+		</if>
+		<if test="page.param.status!=null">
+			and a.status=#{page.param.status}
+		</if>
+		<if test="page.param.authorId!=null">
+			and a.authorId=#{page.param.authorId}
+		</if>
+		order by a.topDate desc,a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="chonseUnselectCountByParamAndTop" resultType="int">
+		select count(*)
+		from artical a
+		left join top_to_artical tta on tta.articalId=a.articalId
+		and tta.topId=#{topId}
+		left join top_manager tm on tm.topId=tta.topId
+		left join artical_to_tag att on att.articalId=a.articalId
+		where a.status=1
+		and ( tm.topId is null)
+
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<!-- 标签 -->
+		<if test="tagId!=null">
+			and att.tagId = #{tagId}
+		</if>
+		<if test="start!=null">
+			and a.createDate &gt; #{start}
+		</if>
+		<if test="end!=null">
+			and a.createDate &lt; #{end}
+		</if>
+		<!-- 来源 -->
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+	</select>
+
+	<select id="chonseUnselectArticalByParamAndTop" resultMap="articalDTO"
+		useCache="false">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,
+		au.authorId,au.penName
+		,ar.resourceId,ar.name
+		from artical a
+		left join author au on au.authorId=a.authorId
+		left join
+		artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		top_to_artical tta on tta.articalId=a.articalId and tta.topId=#{topId}
+		left join top_manager tm on tm.topId=tta.topId
+		left join artical_to_tag
+		att on att.articalId=a.articalId
+		where a.status=1
+		and (tm.topId is null)
+
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<!-- 标签 -->
+		<if test="tagId!=null">
+			and att.tagId = #{tagId}
+		</if>
+		<if test="start!=null">
+			and a.createDate &gt; #{start}
+		</if>
+		<if test="end!=null">
+			and a.createDate &lt; #{end}
+		</if>
+		<!-- 来源 -->
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+		order by a.createDate desc
+
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedArticalByParamAndTop" resultMap="articalDTO"
+		useCache="false">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,tta.topDate,
+		au.authorId,au.penName
+		,ar.resourceId,ar.name
+		from top_to_artical tta
+		left join artical a on a.articalId=tta.articalId
+		left join author au on au.authorId=a.authorId
+		left join
+		artical_resource ar on ar.resourceId=a.resourceId
+		left join top_manager
+		tm on tm.topId=tta.topId
+		left join artical_to_tag att on
+		att.articalId=a.articalId
+		where a.status=1
+		and tm.topId =#{topId}
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<!-- 来源 -->
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+		order by tta.topDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+
+	<select id="selectedCountByParamAndTop" resultType="int"
+		useCache="false">
+		select count(*)
+		from top_to_artical tta
+		left join artical a on
+		a.articalId=tta.articalId
+		left join top_manager tm on
+		tm.topId=tta.topId
+		left join artical_to_tag att on
+		att.articalId=a.articalId
+		where a.status=1
+		and tm.topId =#{topId}
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+	</select>
+
+
+	<select id="getArticalByParam" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.createDate,a.content,a.referId,a.type,
+		a.sourcePath,a.startDate,a.endDate,a.seeNum,a.rightNum,a.wrongNum,
+		ar.name,ar.resourceId,ar.url,
+		at.tagName,at.tagId,
+		au.authorId,au.penName
+		from artical a
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		left join author au on au.authorId=a.authorId
+		where 1=1
+		<if test="artical.articalId!=null">
+			and a.articalId=#{artical.articalId}
+		</if>
+	</select>
+	<select id="getListByIds" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.createDate,a.content,a.referId,a.type,
+		a.sourcePath,a.startDate,a.endDate,a.seeNum,a.rightNum,a.wrongNum,
+		ar.name,ar.resourceId,ar.url,
+		at.tagName,at.tagId,
+		au.authorId,au.penName
+		from artical a
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		left join author au on au.authorId=a.authorId
+		where a.status=1
+		and
+		a.articalId in
+		<foreach collection="ids" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="getCountByParam" resultType="int">
+		select count(*) from artical where
+		1=1
+		<if test="artical.type!=null">
+			and type=#{artical.type}
+		</if>
+		<if test="artical.status!=null">
+			and status=#{artical.status}
+		</if>
+		<if test="artical.authorId!=null">
+			and authorId=#{artical.authorId}
+		</if>
+	</select>
+
+	<select id="selectedOneByParamAndTopName" resultMap="mainDTO">
+		select
+		t.topId,t.name,a.articalId,a.title,a.scanImgPath,a.quote,
+		a.scanImgWidth,a.scanImgHeight from top_manager t
+		left join top_to_artical tta on t.topId=tta.topId
+		left join artical a on
+		a.articalId=tta.articalId and a.status=1
+		where t.name=#{name} and
+		tta.id is not null
+		order by tta.topDate desc limit 0,1
+	</select>
+
+	<select id="selectedOneByParamAndTopId" resultMap="mainDTO"
+		useCache="false">
+		select
+		t.topId,t.name,a.articalId,a.title,a.scanImgPath,a.quote,
+		a.scanImgWidth,a.scanImgHeight from top_manager t
+		left join top_to_artical tta on t.topId=tta.topId
+		left join artical a on
+		a.articalId=tta.articalId and a.status=1
+		where t.topId=#{id} and tta.id
+		is not null
+		order by tta.topDate desc limit 0,1
+	</select>
+
+	<select id="selectedPageByParamAndTopId" resultMap="articalDTO"
+		useCache="false">
+		select
+		t.topId,t.name,a.articalId,a.title,a.scanImgPath,a.quote,
+		a.scanImgWidth,a.scanImgHeight from top_manager t
+		left join top_to_artical tta on t.topId=tta.topId
+		left join artical a on
+		a.articalId=tta.articalId and a.status=1
+		where t.topId=#{id} and tta.id
+		is not null
+		order by tta.topDate desc
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedByParamAndShowTag" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,
+		au.authorId,au.penName,ar.resourceId,ar.name
+		from artical a
+		left join author au on au.authorId=a.authorId
+		left join
+		artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		where 1=1
+
+		and at.isShow=1
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<if test="page.param.status!=null">
+			and a.status = #{page.param.status}
+		</if>
+		<!-- 来源 -->
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+		order by a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedByParamAndTagId" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,
+		au.authorId,au.penName,ar.resourceId,ar.name
+		from artical a
+		left join author au on au.authorId=a.authorId
+		left join
+		artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		where 1=1
+		<if test="tagId!=null">
+			and a.articalId in
+			(select char_a.articalId from
+			(select
+			distinct a.articalId from artical a
+			left join artical_to_tag att on att.articalId=a.articalId
+			where
+			att.tagId=#{tagId}
+			limit
+			${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+			) char_a)
+		</if>
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<if test="page.param.status!=null">
+			and a.status = #{page.param.status}
+		</if>
+		<!-- 来源 -->
+		<if test="page.param.resourceId!=null">
+			and a.resourceId = #{page.param.resourceId}
+		</if>
+		order by a.createDate desc
+
+	</select>
+
+	<select id="selectedHotArticalByPage" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type
+		from artical a
+		where 1=1
+		<if test="page.param.status!=null">
+			and a.status = #{page.param.status}
+		</if>
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<if test="page.param.referId!=null">
+			and a.referId = #{page.param.referId}
+		</if>
+		<if test="page.param.startDate!=null">
+			and a.createDate &gt; #{page.param.startDate}
+		</if>
+		<if test="page.param.endDate!=null">
+			and a.createDate &lt; #{page.param.endDate}
+		</if>
+		order by
+		<if test="page.param.rightNum!=null">
+			a.rightNum desc ,
+		</if>
+		a.seeNum desc,
+		a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedArticalByPageAndTag" resultMap="articalDTO">
+		select a.articalId
+		from artical a
+		left join artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag at on at.tagId=att.tagId
+		where 1=1
+		<if test="page.param.status!=null">
+			and a.status = #{page.param.status}
+		</if>
+		<if test="page.param.type!=null">
+			and a.type = #{page.param.type}
+		</if>
+		<if test="page.param.startDate!=null">
+			and a.createDate &gt; #{page.param.startDate}
+		</if>
+		<if test="page.param.endDate!=null">
+			and a.createDate &lt; #{page.param.endDate}
+		</if>
+		
+		<if test="tagIds!=null">
+			and at.tagId in
+			<foreach collection="tagIds" open="(" close=")" separator=","
+				item="tagId">
+				#{tagId}
+			</foreach>
+
+		</if>
+		group by a.articalId
+		order by
+		<if test="page.param.rightNum!=null">
+			max(a.rightNum) desc ,
+		</if>
+		<if test="page.param.seeNum!=null">
+			max(a.seeNum) desc ,
+		</if>
+		max(a.createDate) desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedArticalCountByTag" resultType="int">
+		select count(*) from(select a.articalId
+		from artical a
+		left join artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag at on at.tagId=att.tagId
+		where 1=1
+		<if test="artical.status!=null">
+			and a.status = #{artical.status}
+		</if>
+		<if test="artical.type!=null">
+			and a.type = #{artical.type}
+		</if>
+		<if test="artical.startDate!=null">
+			and a.createDate &gt; #{artical.startDate}
+		</if>
+		<if test="artical.endDate!=null">
+			and a.createDate &lt; #{artical.endDate}
+		</if>
+		<if test="tagIds!=null">
+			and at.tagId in
+			<foreach collection="tagIds" open="(" close=")" separator=","
+				item="tagId">
+				#{tagId}
+			</foreach>
+		</if>
+		group by a.articalId
+		) toa
+	</select>
+
+	<insert id="storeArtical" useGeneratedKeys="true" keyProperty="store.storeId">
+		insert into store_artical(storeId,articalId,userId)
+		values(#{store.storeId},#{store.articalId},#{store.userId})
+	</insert>
+
+	<delete id="deleteArtical">
+		delete from store_artical where 1=1
+		<if test="store.storeId!=null">
+			and storeId=#{store.storeId}
+		</if>
+		<if test="store.articalId!=null">
+			and articalId=#{store.articalId}
+		</if>
+		<if test="store.userId!=null">
+			and userId=#{store.userId}
+		</if>
+	</delete>
+
+	<select id="getStoreByParam" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,
+		au.authorId,au.penName,ar.resourceId,ar.name
+		from store_artical sa
+		left join artical a on a.articalId=sa.articalId
+		left join author au on
+		au.authorId=a.authorId
+		left join artical_resource ar on
+		ar.resourceId=a.resourceId
+		left join artical_to_tag att on
+		att.articalId=a.articalId
+		left join artical_tag at on
+		at.tagId=att.tagId
+		where 1=1
+		<if test="store.userId!=null">
+			and sa.userId=#{store.userId}
+		</if>
+		<if test="store.articalId!=null">
+			and sa.articalId=#{store.articalId}
+		</if>
+		<if test="store.storeId!=null">
+			and sa.storeId=#{store.storeId}
+		</if>
+	</select>
+
+	<select id="getStoreListByParam" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.type,
+		au.authorId,au.penName,ar.resourceId,ar.name
+		from store_artical sa
+		left join artical a on a.articalId=sa.articalId
+		left join author au on
+		au.authorId=a.authorId
+		left join artical_resource ar on
+		ar.resourceId=a.resourceId
+		left join artical_to_tag att on
+		att.articalId=a.articalId
+		left join artical_tag at on
+		at.tagId=att.tagId
+		where 1=1
+		<if test="store.userId!=null">
+			and sa.userId=#{store.userId}
+		</if>
+		<if test="store.articalId!=null">
+			and sa.articalId=#{store.articalId}
+		</if>
+		<if test="store.storeId!=null">
+			and sa.storeId=#{store.storeId}
+		</if>
+	</select>
+
+	<select id="getAuthorArticalByPage" resultMap="articalDTO"
+		useCache="true">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.createDate,a.content,a.referId,
+		a.sourcePath,a.startDate,a.endDate,a.seeNum,a.rightNum,a.wrongNum,
+		ar.name,ar.resourceId,ar.url,
+		at.tagName,at.tagId,
+		au.authorId,au.penName,au.photoPath
+		from artical a
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		left join author au on au.authorId=a.authorId
+		where a.status=1 and
+		a.articalId in(
+			select temp.articalId from(
+			 select a.articalId from
+			 artical a left join author au on au.authorId=a.authorId
+			 where 	a.authorId=#{page.param.authorId}
+			and  a.status=1
+			order by a.createDate desc
+			limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+			) temp
+		)
+		order by a.createDate desc
+		
+	</select>
+
+	<select id="selectedArticalByPageAndTagType" resultMap="articalDTO">
+		select
+		a.articalId
+		from artical a
+		left join artical_to_tag att on att.articalId=a.articalId
+		left join
+		artical_tag at on at.tagId=att.tagId and at.status=1
+		where a.status=1
+		and at.type=#{type}
+		group by a.articalId
+		order by max(at.topDate) desc,
+		a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="selectedCountByPageAndTagType" resultType="int">
+		select count(*) from
+		(select a.articalId
+		from artical a
+		left join artical_to_tag att on att.articalId=a.articalId
+		left join
+		artical_tag at on at.tagId=att.tagId and at.status=1
+		where a.status=1
+		and at.type=#{type}
+		group by a.articalId) ch
+	</select>
+
+	<select id="getNearArticalByPage" resultMap="articalDTO">
+		select a.articalId
+		from artical a
+		left join artical_to_tag att on att.articalId=a.articalId
+		left join
+		artical_tag at on at.tagId=att.tagId
+		where a.articalId !=
+		#{page.param.articalId}
+		and  a.status=1
+		<if test="page.param.type!=null">
+			and a.type=#{page.param.type}
+		</if>
+		<if test="page.param.tagId!=null">
+			and att.tagId in
+			<foreach collection="page.param.tagId" open="(" close=")"
+				separator="," item="tag">
+				#{tag}
+			</foreach>
+		</if>
+		group by a.articalId
+		order by count(a.articalId) desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="getVideoArticalByPageAndType" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.resourceId,ar.name,ar.url,a.status,a.type,a.seeNum,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.topDate,
+		au.authorId,au.penName ,
+		v.videoId,v.path,v.type videoType
+		from artical
+		a
+		left join author au on au.authorId=a.authorId
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join video
+		v on v.videoId=a.referId
+		where a.status!=0
+		and a.type=6
+		<if test="type!=null">
+			and v.type=#{type}
+		</if>
+		order by a.topDate desc,a.createDate desc
+		limit
+		${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="getVideoArticalById" resultMap="articalDTO">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.resourceId,ar.name,ar.url,a.status,a.type,a.seeNum,
+		a.createDate,a.referId,a.sourcePath,a.startDate,a.endDate,a.topDate,
+		au.authorId,au.penName ,
+		v.videoId,v.path,v.type videoType
+		from artical
+		a
+		left join author au on au.authorId=a.authorId
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join video
+		v on v.videoId=a.referId
+		where a.status!=0
+		and a.type=6
+		and a.articalId=#{id}
+	</select>
+
+	<select id="getByKey" resultMap="articalDTO" useCache="false">
+		select
+		a.articalId,a.title,a.quote,a.scanImgPath,a.scanImgWidth,a.scanImgHeight,
+		a.topDate,a.createDate,a.content,a.referId,a.type,
+		a.sourcePath,a.startDate,a.endDate,a.seeNum,a.rightNum,a.wrongNum,
+		ar.name,ar.resourceId,ar.url,
+		at.tagName,at.tagId,
+		au.authorId,au.penName
+		from artical a
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		left join author au on au.authorId=a.authorId
+		where a.status=1
+		and(
+		a.title like '%${key}%'
+		or
+		a.quote like '%${key}%'
+		or
+		at.tagName like '%${key}%'
+		or
+		ar.name like '%${key}%'
+		)
+		order by a.createDate desc
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+
+	<select id="getCountByKey" resultType="int">
+		select count(*)
+		from
+		artical a
+		left join artical_resource ar on ar.resourceId=a.resourceId
+		left join
+		artical_to_tag att on att.articalId=a.articalId
+		left join artical_tag
+		at on at.tagId=att.tagId
+		where a.status=1
+		and
+		(
+		a.title like '%${key}%'
+		or
+		a.quote like '%${key}%'
+		or
+		at.tagName like '%${key}%'
+		or
+		ar.name like '%${key}%'
+		)
+	</select>
+</mapper>  

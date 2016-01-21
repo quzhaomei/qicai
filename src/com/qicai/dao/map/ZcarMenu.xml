@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.ZcarMenuDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true"/>  
+	<resultMap type="com.qicai.dto.ZcarMenuDTO" id="menuDTO">
+		<id property="menuId" column="menuId" />
+		<result property="name" column="name" />
+		<result property="uri" column="uri" />
+		<result property="parentId" column="parentId" />
+		<result property="position" column="position" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="zcarMenu.menuId">
+		insert into car_menu(menuId,name,uri,parentId,position,createDate)
+		values
+		(#{zcarMenu.menuId},
+		#{zcarMenu.name},#{zcarMenu.uri},#{zcarMenu.parentId},#{zcarMenu.position}
+		,#{zcarMenu.createDate})
+	</insert>
+	<update id="update">
+		update car_menu set menuId=#{zcarMenu.menuId}
+		<if test="zcarMenu.name!=null">
+			,name=#{zcarMenu.name}
+		</if>
+		<if test="zcarMenu.uri!=null">
+			,uri=#{zcarMenu.uri}
+		</if>
+		<if test="zcarMenu.position!=null">
+			,position=#{zcarMenu.position}
+		</if>
+		where menuId=#{zcarMenu.menuId};
+	</update>
+	<delete id="delete">
+		delete from car_menu where menuId=#{zcarMenu.menuId}
+	</delete>
+	<select id="getListByParam" resultMap="menuDTO">
+		select menuId,name,uri,parentId,position from car_menu where 1=1
+		<if test="zcarMenu.parentId!=null">
+			and parentId=#{zcarMenu.parentId}
+		</if>
+		order by position
+	</select>
+	<select id="getByParam" resultMap="menuDTO" >
+		select menuId,name,uri,parentId,position from car_menu where 1=1
+		<if test="zcarMenu.menuId!=null">
+			and menuId=#{zcarMenu.menuId}
+		</if>
+		<if test="zcarMenu.parentId!=null">
+			and parentId=#{zcarMenu.parentId}
+		</if>
+		<if test="zcarMenu.position!=null">
+			and position=#{zcarMenu.position}
+		</if>
+	</select>
+</mapper>  

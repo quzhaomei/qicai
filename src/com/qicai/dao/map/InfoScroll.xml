@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.InfoScrollDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true" />
+	<resultMap type="com.qicai.dto.InfoScrollDTO" id="scrollDTO">
+		<id property="scrollId" column="scrollId" />
+		<result property="title" column="title" />
+		<result property="href" column="href" />
+		<result property="status" column="status" />
+		<result property="createDate" column="createDate" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="scroll.scrollId">
+		insert into info_scroll(scrollId,title,href,status,createDate)
+		values(#{scroll.scrollId},#{scroll.title},
+		#{scroll.href},#{scroll.status},#{scroll.createDate})
+	</insert>
+	<update id="update">
+		update info_scroll set scrollId=#{scroll.scrollId}
+		<if test="scroll.title!=null">
+			,title=#{scroll.title}
+		</if>
+		<if test="scroll.href!=null">
+			,href=#{scroll.href}
+		</if>
+		<if test="scroll.status!=null">
+			,status=#{scroll.status}
+		</if>
+		where scrollId=#{scroll.scrollId}
+	</update>
+	<delete id="delete">
+	delete from info_scroll	where scrollId=#{scroll.scrollId}
+	</delete>
+	<select id="getListByParam" resultMap="scrollDTO">
+		select scrollId,title,href,status,createDate from 
+		info_scroll where 1=1
+		<if test="scroll.status!=null">
+			and status=#{scroll.status}
+		</if>
+		order by createDate 
+	</select>
+	<select id="getListByPage" resultMap="scrollDTO">
+		select scrollId,title,href,status,createDate from 
+		info_scroll where 1=1
+		<if test="page.param.status!=null">
+			and status=#{page.param.status}
+		</if>
+		order by createDate 
+		limit ${page.pageSize*(page.pageIndex-1)},${page.pageSize}
+	</select>
+	<select id="getByParam" resultMap="scrollDTO">
+		select scrollId,title,href,status,createDate from 
+		info_scroll where 1=1
+		<if test="scroll.status!=null">
+			and status=#{scroll.status}
+		</if>
+		<if test="scroll.scrollId!=null">
+			and scrollId=#{scroll.scrollId}
+		</if>
+	</select>
+</mapper>  

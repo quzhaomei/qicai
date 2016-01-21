@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qicai.dao.FriendHrefDao">
+ <cache eviction="LRU" flushInterval="60000" size="1024" readOnly="true" /> 
+	<resultMap type="com.qicai.dto.FriendHrefDTO" id="hrefDTO">
+		<id property="hrefId" column="hrefId" />
+		<result property="name" column="name" />
+		<result property="href" column="href" />
+		<result property="status" column="status" />
+		<result property="createDate" column="createDate" />
+	</resultMap>
+	<insert id="save"  useGeneratedKeys="true" keyProperty="href.hrefId">
+		insert into friend_href(hrefId,name,href,status,createDate)
+		values
+		(#{href.hrefId},
+		#{href.name},#{href.href},#{href.status},#{href.createDate})
+	</insert>
+	<update id="update">
+		update friend_href set hrefId=#{href.hrefId}
+		<if test="href.name!=null">
+		,name=#{href.name}
+		</if>
+		<if test="href.href!=null">
+		,href=#{href.href}
+		</if>
+		<if test="href.status!=null">
+		,status=#{href.status}
+		</if>
+		where hrefId=#{href.hrefId};
+	</update>
+	<delete id="delete"></delete>
+	<select id="getListByParam" resultMap="hrefDTO">
+		select hrefId,name,href,status,createDate from friend_href where 1=1
+		<if test="href.status!=null">
+			and status=#{href.status}
+		</if>
+	</select>
+	<select id="getByParam" resultMap="hrefDTO">
+		select hrefId,name,href,status,createDate from friend_href where 1=1
+		<if test="href.status!=null">
+			and status=#{href.status}
+		</if>
+		<if test="href.hrefId!=null">
+			and hrefId=#{href.hrefId}
+		</if>
+		<if test="href.name!=null">
+			and name=#{href.name}
+		</if>
+	</select>
+</mapper>  
